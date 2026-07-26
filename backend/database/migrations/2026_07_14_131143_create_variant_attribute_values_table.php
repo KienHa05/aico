@@ -21,10 +21,10 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique([
-                'product_variant_id',
-                'attribute_option_id',
-            ]);
+            $table->unique(
+                ['product_variant_id', 'attribute_option_id'],
+                'uq_variant_attr_option'
+            );
         });
     }
 

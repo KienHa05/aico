@@ -31,15 +31,15 @@ class AuthController extends Controller
     }
 
     /**
-     * Authenticate user credentials.
+     * Authenticate user credentials and generate JWT token.
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = $this->authService->login(
+        $result = $this->authService->login(
             $request->validated()
         );
 
-        if (! $user) {
+        if (! $result) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials.',
@@ -49,7 +49,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Login successful.',
-            'data' => $user,
+            'data' => $result,
         ], 200);
     }
 }

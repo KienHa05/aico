@@ -4,12 +4,10 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
-    /**
-     * Register a new user.
-     */
     public function register(array $data): User
     {
         return User::create([
@@ -19,10 +17,7 @@ class AuthService
         ]);
     }
 
-    /**
-     * Authenticate user credentials.
-     */
-    public function login(array $data): ?User
+    public function login(array $data): ?array
     {
         $user = User::where('email', $data['email'])->first();
 
@@ -34,6 +29,13 @@ class AuthService
             return null;
         }
 
-        return $user;
+        $token = JWTAuth::fromUser($user);
+
+        return [
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
+        ];
     }
 }

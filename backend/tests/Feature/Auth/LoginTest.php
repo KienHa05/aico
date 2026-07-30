@@ -32,14 +32,20 @@ class LoginTest extends TestCase
                 'success',
                 'message',
                 'data' => [
-                    'id',
-                    'name',
-                    'email',
-                    'created_at',
-                    'updated_at',
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                        'created_at',
+                        'updated_at',
+                    ],
+                    'access_token',
+                    'token_type',
+                    'expires_in',
                 ],
             ]);
     }
+
 
     public function test_user_cannot_login_with_invalid_password(): void
     {
@@ -61,6 +67,7 @@ class LoginTest extends TestCase
             ]);
     }
 
+
     public function test_user_cannot_login_with_unknown_email(): void
     {
         $response = $this->postJson('/api/v1/auth/login', [
@@ -75,6 +82,7 @@ class LoginTest extends TestCase
                 'message' => 'Invalid credentials.',
             ]);
     }
+
 
     public function test_login_requires_email_and_password(): void
     {

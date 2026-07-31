@@ -64,4 +64,18 @@ class AuthController extends Controller
             'data' => $this->authService->me(),
         ]);
     }
+
+    /**
+     * Logout the currently authenticated user.
+     */
+    public function logout(): JsonResponse
+    {
+        $this->authService->logout();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout successful.',
+            'data' => (object) [],
+        ]);
+    }
 }

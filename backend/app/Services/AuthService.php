@@ -54,4 +54,16 @@ class AuthService
 
         return $user;
     }
+
+    /**
+     * Invalidate the current JWT token.
+     */
+    public function logout(): void
+    {
+        $token = JWTAuth::getToken();
+
+        if ($token) {
+            JWTAuth::invalidate($token);
+        }
+    }
 }

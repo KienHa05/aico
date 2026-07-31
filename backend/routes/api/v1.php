@@ -20,6 +20,11 @@ Route::prefix('v1')->group(function () {
                 AuthController::class,
                 'me',
             ]);
+
+            Route::post('/logout', [
+                AuthController::class,
+                'logout',
+            ]);
         });
     });
 });

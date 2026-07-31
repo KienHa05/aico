@@ -15,6 +15,13 @@ Route::prefix('v1')->group(function () {
             'login',
         ]);
 
+        Route::get('/email/verify/{id}/{hash}', [
+            AuthController::class,
+            'verifyEmail',
+        ])
+            ->middleware('signed')
+            ->name('api.v1.auth.verify-email');
+
         Route::middleware('auth:api')->group(function () {
             Route::get('/me', [
                 AuthController::class,

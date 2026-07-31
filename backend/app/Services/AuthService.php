@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthService
@@ -36,5 +37,21 @@ class AuthService
             'expires_in' => JWTAuth::factory()->getTTL() * 60,
             'user' => JWTAuth::user(),
         ];
+    }
+
+    /**
+     * Get the currently authenticated user.
+     *
+     * @throws AuthenticationException
+     */
+    public function me(): User
+    {
+        $user = JWTAuth::user();
+
+        if (! $user) {
+            throw new AuthenticationException();
+        }
+
+        return $user;
     }
 }

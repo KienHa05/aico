@@ -14,5 +14,12 @@ Route::prefix('v1')->group(function () {
             AuthController::class,
             'login',
         ]);
+
+        Route::middleware('auth:api')->group(function () {
+            Route::get('/me', [
+                AuthController::class,
+                'me',
+            ]);
+        });
     });
 });

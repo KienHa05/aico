@@ -52,4 +52,16 @@ class AuthController extends Controller
             'data' => $tokenData,
         ]);
     }
+
+    /**
+     * Get the currently authenticated user.
+     */
+    public function me(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Authenticated user retrieved successfully.',
+            'data' => $this->authService->me(),
+        ]);
+    }
 }

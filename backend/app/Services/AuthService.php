@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
@@ -20,20 +20,21 @@ class AuthService
     }
 
     /**
-     * Authenticate user credentials.
+     * Authenticate user credentials and issue JWT access token.
      */
-    public function login(array $data): ?User
+    public function login(array $credentials): ?array
     {
-        $user = User::where('email', $data['email'])->first();
+        $token = JWTAuth::attempt($credentials);
 
-        if (! $user) {
+        if (! $token) {
             return null;
         }
 
-        if (! Hash::check($data['password'], $user->password)) {
-            return null;
-        }
-
-        return $user;
+        return [
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
+            'user' => JWTAuth::user(),
+        ];
     }
 }

@@ -27,18 +27,30 @@ class LoginTest extends TestCase
             ->assertJson([
                 'success' => true,
                 'message' => 'Login successful.',
+                'data' => [
+                    'token_type' => 'Bearer',
+                ],
             ])
             ->assertJsonStructure([
                 'success',
                 'message',
                 'data' => [
-                    'id',
-                    'name',
-                    'email',
-                    'created_at',
-                    'updated_at',
+                    'access_token',
+                    'token_type',
+                    'expires_in',
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                        'created_at',
+                        'updated_at',
+                    ],
                 ],
             ]);
+
+        $this->assertNotEmpty(
+            $response->json('data.access_token')
+        );
     }
 
     public function test_user_cannot_login_with_invalid_password(): void

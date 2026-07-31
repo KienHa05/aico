@@ -35,11 +35,11 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = $this->authService->login(
+        $tokenData = $this->authService->login(
             $request->validated()
         );
 
-        if (! $user) {
+        if (! $tokenData) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials.',
@@ -49,7 +49,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Login successful.',
-            'data' => $user,
-        ], 200);
+            'data' => $tokenData,
+        ]);
     }
 }

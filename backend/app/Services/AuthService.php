@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Events\Registered;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthService
@@ -13,11 +14,15 @@ class AuthService
      */
     public function register(array $data): User
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
         ]);
+
+        event(new Registered($user));
+
+        return $user;
     }
 
     /**

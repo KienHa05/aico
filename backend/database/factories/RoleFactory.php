@@ -19,10 +19,7 @@ class RoleFactory extends Factory
     {
         return [
             'name' => fake()->unique()->randomElement([
-                'Super Admin',
                 'Admin',
-                'Manager',
-                'Staff',
                 'Customer',
             ]),
             'slug' => fake()->unique()->slug(),

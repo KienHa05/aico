@@ -49,6 +49,28 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return [];
     }
 
+    /**
+     * Determine if the user has the given role.
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()
+            ->where('slug', $role)
+            ->exists();
+    }
+
+    /**
+     * Determine if the user has any of the given roles.
+     *
+     * @param array<int, string> $roles
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        return $this->roles()
+            ->whereIn('slug', $roles)
+            ->exists();
+    }
+
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);

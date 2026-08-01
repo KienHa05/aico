@@ -4,7 +4,10 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthService
@@ -42,6 +45,31 @@ class AuthService
             'expires_in' => JWTAuth::factory()->getTTL() * 60,
             'user' => JWTAuth::user(),
         ];
+    }
+
+    /**
+     * Send a password reset link to the given user.
+     */
+    public function forgotPassword(array $credentials): string
+    {
+        return Password::sendResetLink($credentials);
+    }
+
+    /**
+     * Reset the user's password.
+     */
+    public function resetPassword(array $credentials): string
+    {
+        return Password::reset(
+            $credentials,
+            function (User $user, string $password): void {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
     }
 
     /**

@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\ForgotPasswordRequest;
 use App\Http\Requests\Api\V1\LoginRequest;
 use App\Http\Requests\Api\V1\RegisterRequest;
+use App\Http\Requests\Api\V1\ResetPasswordRequest;
 use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -53,6 +56,64 @@ class AuthController extends Controller
             'message' => 'Login successful.',
             'data' => $tokenData,
         ]);
+    }
+
+    /**
+     * Send password reset link.
+     */
+    public function forgotPassword(
+        ForgotPasswordRequest $request
+    ): JsonResponse {
+        $status = $this->authService->forgotPassword(
+            $request->validated()
+        );
+
+        if ($status === Password::RESET_THROTTLED) {
+            return response()->json([
+                'success' => false,
+                'message' => __($status),
+            ], 429);
+        }
+
+        if (
+            $status === Password::RESET_LINK_SENT ||
+            $status === Password::INVALID_USER
+        ) {
+            return response()->json([
+                'success' => true,
+                'message' => 'If your email address exists in our system, you will receive a password reset link shortly.',
+                'data' => (object) [],
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => __($status),
+        ], 400);
+    }
+
+    /**
+     * Reset password.
+     */
+    public function resetPassword(
+        ResetPasswordRequest $request
+    ): JsonResponse {
+        $status = $this->authService->resetPassword(
+            $request->validated()
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Password reset successfully.',
+                'data' => (object) [],
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => __($status),
+        ], 400);
     }
 
     /**

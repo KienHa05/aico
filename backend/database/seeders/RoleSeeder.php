@@ -6,7 +6,6 @@ use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
-
 class RoleSeeder extends Seeder
 {
     /**
@@ -16,16 +15,12 @@ class RoleSeeder extends Seeder
     {
         $roles = [
             [
-                'name' => 'Super Admin',
-                'description' => 'Full system access',
-            ],
-            [
                 'name' => 'Admin',
                 'description' => 'Store administrator',
             ],
             [
-                'name' => 'Manager',
-                'description' => 'Store manager',
+                'name' => 'Customer',
+                'description' => 'Store customer',
             ],
         ];
 

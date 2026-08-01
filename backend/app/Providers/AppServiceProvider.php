@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -31,5 +32,16 @@ class AppServiceProvider extends ServiceProvider
                 ]
             );
         });
+
+        ResetPassword::createUrlUsing(
+            function ($notifiable, string $token): string {
+                return sprintf(
+                    '%s/reset-password?token=%s&email=%s',
+                    rtrim(config('app.frontend_url'), '/'),
+                    urlencode($token),
+                    urlencode($notifiable->getEmailForPasswordReset())
+                );
+            }
+        );
     }
 }

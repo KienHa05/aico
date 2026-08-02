@@ -48,6 +48,21 @@ class AuthService
     }
 
     /**
+     * Refresh the current JWT access token.
+     */
+    public function refresh(): array
+    {
+        $token = JWTAuth::parseToken()->refresh();
+
+        return [
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60,
+            'user' => JWTAuth::setToken($token)->user(),
+        ];
+    }
+
+    /**
      * Send a password reset link to the given user.
      */
     public function forgotPassword(array $credentials): string

@@ -59,6 +59,18 @@ class AuthController extends Controller
     }
 
     /**
+     * Refresh the current JWT access token.
+     */
+    public function refresh(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Token refreshed successfully.',
+            'data' => $this->authService->refresh(),
+        ]);
+    }
+
+    /**
      * Send password reset link.
      */
     public function forgotPassword(

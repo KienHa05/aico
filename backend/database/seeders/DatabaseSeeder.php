@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             // Authentication
             RoleSeeder::class,
             PermissionSeeder::class,
+            RolePermissionSeeder::class,
             UserSeeder::class,
 
             // Catalog

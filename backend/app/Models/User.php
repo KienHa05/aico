@@ -71,6 +71,32 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
             ->exists();
     }
 
+    /**
+     * Determine if the user has the given permission.
+     */
+    public function hasPermission(string $permission): bool
+    {
+        return $this->roles()
+            ->whereHas('permissions', function ($query) use ($permission): void {
+                $query->where('slug', $permission);
+            })
+            ->exists();
+    }
+
+    /**
+     * Determine if the user has any of the given permissions.
+     *
+     * @param array<int, string> $permissions
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        return $this->roles()
+            ->whereHas('permissions', function ($query) use ($permissions): void {
+                $query->whereIn('slug', $permissions);
+            })
+            ->exists();
+    }
+
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class);

@@ -25,10 +25,15 @@ class RoleSeeder extends Seeder
         ];
 
         foreach ($roles as $role) {
-            Role::create([
-                ...$role,
-                'slug' => Str::slug($role['name']),
-            ]);
+            Role::updateOrCreate(
+                [
+                    'slug' => Str::slug($role['name']),
+                ],
+                [
+                    'name' => $role['name'],
+                    'description' => $role['description'],
+                ],
+            );
         }
     }
 }

@@ -90,4 +90,12 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return $this->hasMany(Order::class);
     }
+
+    /**
+     * Get the user's social accounts.
+     */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
 }

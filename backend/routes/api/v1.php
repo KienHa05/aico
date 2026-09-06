@@ -17,6 +17,16 @@ Route::prefix('v1')->group(function () {
             'login',
         ]);
 
+        Route::get('/google/redirect', [
+            AuthController::class,
+            'googleRedirect',
+        ]);
+
+        Route::get('/google/callback', [
+            AuthController::class,
+            'googleCallback',
+        ]);
+
         Route::post('/forgot-password', [
             AuthController::class,
             'forgotPassword',

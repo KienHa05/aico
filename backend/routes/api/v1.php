@@ -44,16 +44,22 @@ Route::prefix('v1')->group(function () {
             ->middleware('signed')
             ->name('api.v1.auth.verify-email');
 
+        /*
+         * Refresh intentionally does not use auth:api.
+         *
+         * The access token may already be expired while still being
+         * eligible for refresh within JWT_REFRESH_TTL.
+         */
+        Route::post('/refresh', [
+            AuthController::class,
+            'refresh',
+        ]);
+
         Route::middleware('auth:api')->group(function () {
 
             Route::get('/me', [
                 AuthController::class,
                 'me',
-            ]);
-
-            Route::post('/refresh', [
-                AuthController::class,
-                'refresh',
             ]);
 
             Route::post('/logout', [

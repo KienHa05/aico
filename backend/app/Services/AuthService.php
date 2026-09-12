@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 
 class AuthService
 {
@@ -247,11 +248,39 @@ class AuthService
     {
         $token = JWTAuth::parseToken()->refresh();
 
+        /*
+         * The refresh endpoint intentionally does not use auth:api,
+         * because the current access token may already be expired.
+         *
+         * After rotation, explicitly authenticate the new token
+         * through the application's JWT API guard so the returned
+         * user is resolved consistently with protected API routes.
+         *
+         * @var JWTGuard $apiGuard
+         */
+        $apiGuard = auth('api');
+
+        if (! $apiGuard instanceof JWTGuard) {
+            throw new AuthenticationException(
+                'The API authentication guard is not a JWT guard.'
+            );
+        }
+
+        $apiGuard->setToken($token);
+
+        $user = $apiGuard->user();
+
+        if (! $user) {
+            throw new AuthenticationException(
+                'Unable to authenticate refreshed token.'
+            );
+        }
+
         return [
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_in' => JWTAuth::factory()->getTTL() * 60,
-            'user' => JWTAuth::setToken($token)->user(),
+            'user' => $user,
         ];
     }
 
@@ -287,7 +316,12 @@ class AuthService
      */
     public function me(): User
     {
-        $user = JWTAuth::user();
+        /*
+         * Protected API endpoints authenticate through the named
+         * "api" guard. Read the authenticated user from that same
+         * guard instead of relying on JWTAuth's internal provider state.
+         */
+        $user = auth('api')->user();
 
         if (! $user) {
             throw new AuthenticationException();

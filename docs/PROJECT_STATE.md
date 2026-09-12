@@ -1,263 +1,136 @@
-# 📊 AICO Platform — Project State
+# AICO Platform — Project State
 
-> **Last Updated:** 2025-07-28  
-> **Current Phase:** Phase 1 — MVP  
-> **Overall Status:** 🟡 In Progress
-
----
-
-# 📌 Purpose
-
-This document is a **living document** that tracks the current implementation status of the **AICO Platform**.
-
-Unlike **PROJECT_CHARTER.md**, which defines the project's vision and long-term objectives, this document reflects the project's current progress and should be updated whenever a significant milestone is reached.
+> **Last updated:** 2026-09-12  
+> **Current focus:** Phase 1 MVP — Business Backend  
+> **Overall status:** In progress
 
 ---
 
-# 🚀 Development Progress
+## Purpose
 
-| Phase | Status | Progress |
-|--------|--------|----------|
-| **Phase 1 — MVP** | 🟡 In Progress | Database ✅ • Backend API 🟡 • Frontend 🟡 |
-| **Phase 2 — Core Platform** | ⏳ Planned | 0% |
-| **Phase 3 — Production Ready** | ⏳ Planned | 0% |
-| **Phase 4 — AI Commerce** | ⏳ Planned | 0% |
-| **Phase 5 — System Evolution** | ⏳ Planned | 0% |
+This document is the current implementation snapshot for AICO Platform.
 
----
+It records what is currently implemented and verified in the repository, the
+major architectural decisions that have been made, and the next verified
+development milestone.
 
-# 📈 Overall Progress
-
-| Area | Status |
-|------|--------|
-| Database Design | ✅ Complete |
-| Database Migrations | ✅ Complete |
-| Eloquent Models | ✅ Complete |
-| Seeders & Factories | ✅ Complete |
-| Backend API | 🟡 In Progress |
-| Frontend | 🟡 In Progress |
-| Authentication | ⏳ Pending |
-| Testing | ⏳ Planned |
-| AI Features | ⏳ Planned |
-| Deployment | ⏳ Planned |
+This is **not** the long-term feature roadmap. Planned work belongs to the
+project roadmap and architecture documentation.
 
 ---
 
-# ✅ Completed
+## Executive Summary
 
-## Database
+The authentication and authorization foundation is complete through token
+rotation and revocation.
 
-Completed:
+The commerce database foundation is also in place, including the core schema
+for categories, products, variants, attributes, inventory, carts, orders,
+addresses, roles, permissions, and related entities.
 
-- Database schema
-- Foreign key relationships
-- Soft Deletes
-- SPU / SKU architecture
-- Product Attributes (EAV)
-- Inventory Management
-- Shopping Cart
+The project is now moving from **security foundation work** into the
+implementation of production business APIs.
+
+The next milestone is the **Category API**, followed by the Product API and
+the remaining commerce workflows.
+
+The MVP is **not complete yet**. There are currently no production Category,
+Product, Cart, Order, Checkout, or Admin APIs, and the frontend remains a
+bootstrap application.
+
+---
+
+## Development Progress
+
+| Phase | Status | Verified State |
+|---|---|---|
+| **Phase 1 — MVP** | In progress | Database foundation and Auth/Authz foundation are complete; production commerce APIs and frontend flows remain. |
+| **Phase 2 — Core Platform** | In progress | Auth/Authz security foundation is complete; file storage, Redis cache, and Docker development infrastructure are not implemented. |
+| **Phase 3 — Production Ready** | Planned | Queues, search, testing expansion, monitoring, centralized logging, CI/CD, payment integrations, and related production infrastructure are not implemented. |
+| **Phase 4 — AI Commerce** | Planned | No AI service or AI commerce feature implementation yet. |
+| **Phase 5 — System Evolution** | Planned | No distributed-service architecture, horizontal scaling, API gateway, or full observability implementation yet. |
+
+---
+
+## Verified Implementation
+
+### Database Foundation
+
+The current backend repository contains:
+
+- **23 migrations**
+- **19 Eloquent models**
+- **18 factories**
+- **20 seeders**
+
+The commerce schema already contains foundational entities for:
+
+- Categories
+- Products
+- Product variants / SKUs
+- Product attributes
+- Inventory
+- Carts
 - Orders
-- Addresses
-- RBAC foundation
+- Order-related addresses and snapshots
+- Tags
+- Roles
+- Permissions
+- Social accounts
+
+The schema also establishes the planned foundations for:
+
+- SPU/SKU product modeling
+- EAV-style product attributes
+- Inventory records
+- Cart and order persistence
+- Order snapshots
+- Role and permission relationships
+- Foreign-key constraints
+- Soft deletes where applicable
+
+These database structures are currently **foundational only**. Their
+corresponding production business APIs have not yet been implemented.
 
 ---
 
-## Backend Foundation
+## Authentication and Authorization Foundation
 
-Completed:
+The authentication and authorization workstream is complete through token
+rotation and revocation.
 
-- Laravel project initialization
-- Models
-- Migrations
-- Seeders
-- Factories
+The following milestones are implemented and committed on `develop`:
 
----
+| Milestone | Status | Capability |
+|---|---|---|
+| **#7–#10** | Complete | Registration validation, registration, login, and JWT foundation |
+| **#12–#17** | Complete | JWT login, protected routes, logout, email verification, password reset, and basic RBAC |
+| **#18** | Complete | JWT refresh endpoint |
+| **#19** | Complete | Google OAuth2 account sign-in and account linking |
+| **#20** | Complete | Fine-grained permissions and permission middleware |
+| **#21** | Complete | Gate and `UserPolicy` authorization foundation |
+| **#22** | Complete | Token rotation, blacklist-based revocation, and rolling refresh lifetime |
 
-## Frontend Foundation
+### Current JWT Behavior
 
-Completed:
+The current JWT lifecycle is configured as follows:
 
-- React
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- Vite
-- Initial project setup
+- Access-token TTL: **60 minutes**
+- Refresh window: **20,160 minutes (14 days)**
+- `JWT_REFRESH_IAT=true`
+- JWT blacklist: **enabled**
+- Blacklist grace period: **0 seconds**
+- Successful refresh rotates the token
+- The previous token is immediately revoked after rotation
+- Logout revokes the current token
+- Refreshing a token produces a new token lifetime based on the current
+  refresh time
 
----
+Because `JWT_REFRESH_IAT=true`, the refresh window uses **rolling refresh
+semantics** rather than an absolute 14-day session lifetime.
 
-## Documentation
+The refresh endpoint is intentionally available outside the `auth:api`
+middleware:
 
-Completed:
-
-- README
-- PROJECT_CHARTER
-- AI_ENGINEERING_GUIDE
-- CONTRIBUTING
-- PROJECT_STATE
-
----
-
-# 🟡 Currently In Progress
-
-## Backend
-
-Current priorities:
-
-- JWT Authentication
-- API Routes
-- Controllers
-- Form Requests
-- API Resources
-- Inventory Service
-- Checkout Flow
-
----
-
-## Frontend
-
-Current priorities:
-
-- Authentication
-- Product Catalog
-- Product Detail
-- Shopping Cart
-- Checkout
-- User Dashboard
-- Admin Dashboard
-
----
-
-# 🚧 Current Blockers
-
-| Item | Status |
-|------|--------|
-| JWT vs Sanctum | Decision Required |
-| API Versioning | Pending |
-| Response Format | Pending |
-| Global Exception Handling | Pending |
-| Validation Strategy | Pending |
-| Admin/Public API Separation | Pending |
-
----
-
-# 📋 Current Milestone
-
-## Phase 1 — MVP
-
-### Backend
-
-- [ ] JWT Authentication
-- [ ] Authentication API
-- [ ] Category API
-- [ ] Product API
-- [ ] Variant API
-- [ ] Attribute API
-- [ ] Cart API
-- [ ] Checkout API
-- [ ] Order API
-- [ ] Inventory Service
-- [ ] API Resources
-- [ ] Exception Handler
-
-### Frontend
-
-- [ ] Authentication Pages
-- [ ] Product Listing
-- [ ] Product Detail
-- [ ] Shopping Cart
-- [ ] Checkout
-- [ ] User Dashboard
-- [ ] Admin Dashboard
-- [ ] Redux Toolkit Integration
-- [ ] Axios API Client
-
----
-
-# 🏗 Technical Decisions
-
-The following architectural decisions have been finalized:
-
-- ✅ SPU / SKU product architecture
-- ✅ EAV attribute model
-- ✅ Order snapshot pattern
-- ✅ Reserved inventory strategy
-- ✅ Guest cart using session ID
-- ✅ Soft Deletes
-- ✅ Foreign key strategy
-- ✅ Stateless JWT Authentication
-- ✅ Separate AI Service (Python / FastAPI)
-
----
-
-# 📊 Project Metrics
-
-| Metric | Current |
-|---------|---------|
-| Migrations | 22 |
-| Models | 18 |
-| Seeders | 18 |
-| Factories | 18 |
-| Backend APIs | 0 |
-| Frontend Pages | 1 |
-| Documentation | 100% |
-
----
-
-# 🎯 Next Milestone
-
-Complete **Phase 1 — MVP**
-
-Success Criteria:
-
-- Authentication complete
-- CRUD APIs complete
-- Shopping Cart functional
-- Checkout completed
-- Order Management completed
-- Admin Dashboard available
-- Frontend connected to API
-- End-to-end demo available
-
----
-
-# 🔮 Upcoming Phase
-
-## Phase 2 — Core Platform
-
-Planned Features:
-
-- File Storage Service
-- Redis Cache
-- Refresh Token
-- RBAC Enhancement
-- Docker Development Environment
-- Modular Architecture
-
----
-
-# 📝 Notes
-
-Before contributing to the project:
-
-- Read **README.md** for project overview.
-- Read **PROJECT_CHARTER.md** to understand the project's vision.
-- Follow **CONTRIBUTING.md** for development workflow and coding standards.
-- Read **AI_ENGINEERING_GUIDE.md** for AI architecture and roadmap.
-
----
-
-# 🔄 Update Policy
-
-This document should be updated whenever one of the following occurs:
-
-- A development phase is completed.
-- A major feature is implemented.
-- A significant architectural decision is made.
-- Project priorities change.
-- A new milestone is reached.
-
----
-
-> **This document represents the current implementation status of the AICO Platform and should always reflect the latest state of the project.**
+```text
+POST /api/v1/auth/refresh

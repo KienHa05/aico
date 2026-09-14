@@ -6,7 +6,7 @@ export const buttonVariants = cva(
     'whitespace-nowrap rounded-md',
     'text-sm font-medium',
     'transition-colors',
-    'focus-visible:outline-none',
+    'focus-visible:outline-hidden',
     'focus-visible:ring-2',
     'focus-visible:ring-ring',
     'focus-visible:ring-offset-2',

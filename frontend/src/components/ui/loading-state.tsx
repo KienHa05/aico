@@ -38,10 +38,6 @@ const LoadingState = React.forwardRef<
         <p className="text-sm text-muted-foreground">
           {message}
         </p>
-
-        <span className="sr-only">
-          {message}
-        </span>
       </div>
     )
   },

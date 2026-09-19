@@ -12,6 +12,33 @@ export interface AuthTokenData {
   user: AuthUser
 }
 
+export interface LoginRequest {
+  email: string
+  password: string
+}
+
+export interface RegisterRequest {
+  name: string
+  email: string
+  password: string
+  password_confirmation: string
+}
+
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  token: string
+  email: string
+  password: string
+  password_confirmation: string
+}
+
+export interface GoogleRedirectData {
+  redirect_url: string
+}
+
 export interface ApiResponse<T> {
   success: boolean
   message: string

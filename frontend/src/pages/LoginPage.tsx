@@ -15,7 +15,10 @@ import {
   Input,
   Label,
 } from '@/components/ui'
-import { login } from '@/features/auth/authApi'
+import {
+  getGoogleRedirectUrl,
+  login,
+} from '@/features/auth/authApi'
 import { setCredentials } from '@/features/auth/authSlice'
 import { setStoredAccessToken } from '@/lib/tokenStorage'
 import { useAppDispatch } from '@/store/hooks'
@@ -40,6 +43,7 @@ function LoginPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const [serverError, setServerError] = useState<string | null>(null)
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false)
 
   const locationState = location.state as
     | { message?: string }
@@ -116,6 +120,30 @@ function LoginPage() {
     }
   }
 
+  async function handleGoogleSignIn(): Promise<void> {
+    setServerError(null)
+    setIsGoogleSubmitting(true)
+
+    try {
+      const response = await getGoogleRedirectUrl()
+
+      window.location.assign(response.data.redirect_url)
+    } catch (error: unknown) {
+      const response = axios.isAxiosError<ApiErrorResponse>(error)
+        ? error.response
+        : undefined
+
+      setServerError(
+        response?.data?.message ??
+        'Unable to start Google sign-in. Please try again.',
+      )
+
+      setIsGoogleSubmitting(false)
+    }
+  }
+
+  const isSubmittingForm = isSubmitting || isGoogleSubmitting
+
   return (
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-6 py-12">
       <Card className="w-full max-w-md">
@@ -159,7 +187,7 @@ function LoginPage() {
                 type="email"
                 autoComplete="username"
                 aria-invalid={Boolean(errors.email)}
-                disabled={isSubmitting}
+                disabled={isSubmittingForm}
                 {...registerField('email')}
               />
 
@@ -178,7 +206,7 @@ function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 aria-invalid={Boolean(errors.password)}
-                disabled={isSubmitting}
+                disabled={isSubmittingForm}
                 {...registerField('password')}
               />
 
@@ -201,11 +229,37 @@ function LoginPage() {
             <Button
               className="w-full"
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmittingForm}
             >
-              {isSubmitting ? 'Logging in...' : 'Log in'}
+              {isSubmitting
+                ? 'Logging in...'
+                : 'Log in'}
             </Button>
           </form>
+
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+
+            <span className="text-xs text-muted-foreground">
+              OR
+            </span>
+
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <Button
+            className="w-full"
+            type="button"
+            variant="outline"
+            disabled={isSubmittingForm}
+            onClick={() => {
+              void handleGoogleSignIn()
+            }}
+          >
+            {isGoogleSubmitting
+              ? 'Connecting to Google...'
+              : 'Continue with Google'}
+          </Button>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Don't have an account?{' '}

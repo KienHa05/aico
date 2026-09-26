@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import AppLayout from '@/layouts/AppLayout'
+import EmailVerificationPage from '@/pages/EmailVerificationPage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import HomePage from '@/pages/HomePage'
 import LoginPage from '@/pages/LoginPage'
@@ -27,6 +28,10 @@ function AppRoutes() {
           <Route
             path="/reset-password"
             element={<ResetPasswordPage />}
+          />
+          <Route
+            path="/email-verification"
+            element={<EmailVerificationPage />}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

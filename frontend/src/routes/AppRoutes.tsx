@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import AppLayout from '@/layouts/AppLayout'
 import EmailVerificationPage from '@/pages/EmailVerificationPage'
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
+import GoogleOAuthCallbackPage from '@/pages/GoogleOAuthCallbackPage'
 import HomePage from '@/pages/HomePage'
 import LoginPage from '@/pages/LoginPage'
 import NotFoundPage from '@/pages/NotFoundPage'
@@ -32,6 +33,10 @@ function AppRoutes() {
           <Route
             path="/email-verification"
             element={<EmailVerificationPage />}
+          />
+          <Route
+            path="/auth/google/callback"
+            element={<GoogleOAuthCallbackPage />}
           />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

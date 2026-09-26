@@ -12,6 +12,7 @@ use App\Services\AuthService;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
@@ -87,9 +88,15 @@ class AuthController extends Controller
 
     /**
      * Handle the Google OAuth callback and issue an AICO JWT.
+     *
+     * API clients receive the existing JSON response.
+     * Browser OAuth requests are redirected back to the SPA with
+     * the JWT in the URL fragment so it is not sent as a request
+     * parameter to the backend or included in the Referer header.
      */
-    public function googleCallback(): JsonResponse
-    {
+    public function googleCallback(
+        Request $request
+    ): JsonResponse|RedirectResponse {
         try {
             $socialite = app('Laravel\Socialite\Contracts\Factory');
 
@@ -102,44 +109,102 @@ class AuthController extends Controller
                 $googleUser
             );
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Google login successful.',
-                'data' => $tokenData,
-            ]);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Google login successful.',
+                    'data' => $tokenData,
+                ]);
+            }
+
+            return $this->redirectToGoogleCallback(
+                $tokenData['access_token']
+            );
         } catch (\Throwable $e) {
-            /*
-             * Socialite InvalidStateException.
-             *
-             * The class is referenced by string so the IDE does not
-             * need to resolve the package implementation directly.
-             */
             if (
                 is_a(
                     $e,
                     'Laravel\\Socialite\\Two\\InvalidStateException'
                 )
             ) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid Google OAuth state.',
-                ], 422);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid Google OAuth state.',
+                    ], 422);
+                }
+
+                return $this->redirectToGoogleCallbackError();
             }
 
             if ($e instanceof AuthenticationException) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ], 401);
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $e->getMessage(),
+                    ], 401);
+                }
+
+                return $this->redirectToGoogleCallbackError();
             }
 
             report($e);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Unable to authenticate with Google.',
-            ], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to authenticate with Google.',
+                ], 500);
+            }
+
+            return $this->redirectToGoogleCallbackError();
         }
+    }
+
+    /**
+     * Redirect a successful browser-based OAuth flow back to the SPA.
+     */
+    private function redirectToGoogleCallback(
+        string $accessToken
+    ): RedirectResponse {
+        $frontendUrl = rtrim(
+            (string) config('app.frontend_url'),
+            '/'
+        );
+
+        if ($frontendUrl === '') {
+            throw new \RuntimeException(
+                'Frontend URL is not configured.'
+            );
+        }
+
+        return redirect()->to(
+            $frontendUrl
+                . '/auth/google/callback#access_token='
+                . rawurlencode($accessToken)
+        );
+    }
+
+    /**
+     * Redirect a failed browser-based OAuth flow back to the SPA.
+     */
+    private function redirectToGoogleCallbackError(): RedirectResponse
+    {
+        $frontendUrl = rtrim(
+            (string) config('app.frontend_url'),
+            '/'
+        );
+
+        if ($frontendUrl === '') {
+            throw new \RuntimeException(
+                'Frontend URL is not configured.'
+            );
+        }
+
+        return redirect()->to(
+            $frontendUrl
+                . '/auth/google/callback?error=google_auth_failed'
+        );
     }
 
     /**
@@ -244,7 +309,10 @@ class AuthController extends Controller
             $user->markEmailAsVerified();
         }
 
-        return redirect()->to(config('app.url'));
+        return redirect()->to(
+            rtrim(config('app.frontend_url'), '/')
+                . '/email-verification?status=success'
+        );
     }
 
     /**

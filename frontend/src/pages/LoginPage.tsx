@@ -41,8 +41,11 @@ function LoginPage() {
   const navigate = useNavigate()
   const [serverError, setServerError] = useState<string | null>(null)
 
-  const registrationMessage =
-    (location.state as { message?: string } | null)?.message ?? null
+  const locationState = location.state as
+    | { message?: string }
+    | null
+
+  const registrationMessage = locationState?.message ?? null
 
   const {
     register: registerField,
@@ -184,6 +187,15 @@ function LoginPage() {
                   {errors.password.message}
                 </p>
               )}
+
+              <div className="text-right">
+                <Link
+                  className="text-sm font-medium text-primary hover:underline"
+                  to="/forgot-password"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
             </div>
 
             <Button

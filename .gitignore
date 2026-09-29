@@ -2,3 +2,14 @@ node_modules/
 vendor/
 .env
 .DS_Store
+
+# Graphify — shared repository artifacts
+# Keep graph.json / manifest.json / GRAPH_REPORT.md / labels in Git
+# Keep local visualization and generated state out of Git
+graphify-out/graph.html
+graphify-out/cost.json
+graphify-out/cache/
+graphify-out/.graphify_root
+graphify-out/.graphify_python
+graphify-out/.graphify_analysis.json
+graphify-out/needs_update

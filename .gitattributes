@@ -1,7 +1,24 @@
+# ============================================================
+# AICO - Git attributes
+# Repository-wide Git policy
+# ============================================================
+
+# Normalize text files to LF
 * text=auto eol=lf
 
+
+# ============================================================
+# Windows scripts
+# ============================================================
+
+# Windows command scripts intentionally use CRLF
 *.bat text eol=crlf
 *.cmd text eol=crlf
+
+
+# ============================================================
+# Binary files
+# ============================================================
 
 *.png binary
 *.jpg binary
@@ -11,3 +28,33 @@
 *.ico binary
 *.pdf binary
 *.zip binary
+
+
+# ============================================================
+# Diff drivers
+# ============================================================
+
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+
+# ============================================================
+# Graphify
+# Clone-local merge.graphify.* is registered by:
+#   graphify hook install
+# Do not pin machine-specific interpreter paths in tracked files.
+# ============================================================
+
+graphify-out/graph.json merge=graphify text eol=lf
+
+
+# ============================================================
+# Export control
+# ============================================================
+
+/.github export-ignore
+CHANGELOG.md export-ignore
+.styleci.yml export-ignore
